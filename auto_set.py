@@ -32,7 +32,6 @@ def json_to_excel(wb):
         # 如果匹配成功，提取json字符串，并转换为字典
         if match:
             json_str = match.group()
-            
             json_str = json_str.replace('_x000D_','\r')
             json_dict = eval(json_str)
 
