@@ -57,15 +57,21 @@ for file in csv_files:
     encoding = chardet.detect(open(file, 'rb').read())['encoding']
     print("文件编码：",encoding)
     
+    #编码范围扩展
+    if(encoding=='GB2312'):
+        encoding='GB18030'
+    #
     #   针对以=不同分隔符的读取
     try:
         df = pd.read_csv(file, encoding=encoding, sep=',')
     except:
-        df = pd.read_csv(file, encoding=encoding, sep='\t')
+        try:
+            df = pd.read_csv(file, encoding=encoding, sep='\t')
+        except:
+            print("无合法分隔符")
 
     xlsx_name = file.replace('.csv', '.xlsx')
     df.to_excel(xlsx_name, index=False)
-
 
 # 获取当前目录下的所有xlsx文件
 files = [f for f in os.listdir('.') if f.endswith('.xlsx')]
@@ -75,16 +81,21 @@ print("找到的xlsx文件：",files)
 for file in files:
     # 打印提示信息
     print(f'正在处理{file}...')
-    # 打开文件
-    wb = openpyxl.load_workbook(file)
-    # 调用json_to_excel函数
-    wb = json_to_excel(wb)
-    # 保存修改后的文件
-    new_file = file[:-5] + '-已处理.xlsx'
-    wb.save(new_file)
-    # 打印提示信息
-    print(f'{file}处理完成，转换为{new_file}')
-    os.remove(file)
+    
+    try:
+        # 打开文件
+        wb = openpyxl.load_workbook(file)
+        # 调用json_to_excel函数
+        wb = json_to_excel(wb)
+        # 保存修改后的文件
+        new_file = file[:-5] + '-统计表.xlsx'
+        wb.save(new_file)
+        # 打印提示信息
+        print(f'{file}处理完成，转换为{new_file}')
+        # 删除原xlsx
+        os.remove(file)
+    except:
+        print(f'处理{file}失败,尝试更改文件编码或转换为xlsx文件')
 
 #暂停
 input('按任意键退出')
